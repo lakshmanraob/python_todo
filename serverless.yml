@@ -1,0 +1,109 @@
+service: serverless-rest-api-with-dynamodb
+
+frameworkVersion: ">=1.1.0 <2.0.0"
+
+provider:
+  name: aws
+  runtime: python3.6
+  environment:
+    DYNAMODB_TABLE: serverless-rest-api-with-dynamodb-dev
+    USER_TABLE: serverless-rest-api-with-user-dev
+  iamRoleStatements:
+    - Effect: Allow
+      Action:
+        - dynamodb:Query
+        - dynamodb:Scan
+        - dynamodb:GetItem
+        - dynamodb:PutItem
+        - dynamodb:UpdateItem
+        - dynamodb:DeleteItem
+      # Resource: "arn:aws:dynamodb:us-east-1:581416734347:table/serverless-rest-api-with-dynamodb-dev"
+      Resource: 
+        - "arn:aws:dynamodb:${opt:region, self:provider.region}:*:table/${self:provider.environment.DYNAMODB_TABLE}"
+        - "arn:aws:dynamodb:${opt:region, self:provider.region}:*:table/${self:provider.environment.USER_TABLE}"
+
+functions:
+  create:
+    handler: todos/create.create
+    events:
+      - http:
+          path: todos
+          method: post
+          cors: true
+
+  list:
+    handler: todos/list.list
+    events:
+      - http:
+          path: todos
+          method: get
+          cors: true
+
+  get:
+    handler: todos/get.get
+    events:
+      - http:
+          path: todos/{id}
+          method: get
+          cors: true
+
+  update:
+    handler: todos/update.update
+    events:
+      - http:
+          path: todos/{id}
+          method: put
+          cors: true
+
+  delete:
+    handler: todos/delete.delete
+    events:
+      - http:
+          path: todos/{id}
+          method: delete
+          cors: true
+  
+  user:
+    handler: todos/create.create_user
+    events:
+      - http:
+          path: todos/user
+          method: post
+          cors: true
+
+resources:
+  Resources:
+    TodosDynamoDbTable:
+      Type: 'AWS::DynamoDB::Table'
+      DeletionPolicy: Retain
+      Properties:
+        AttributeDefinitions:
+          -
+            AttributeName: id
+            AttributeType: S
+        KeySchema:
+          -
+            AttributeName: id
+            KeyType: HASH
+        ProvisionedThroughput:
+          ReadCapacityUnits: 1
+          WriteCapacityUnits: 1
+        TableName: ${self:provider.environment.DYNAMODB_TABLE}
+  
+    TodosUser:
+      Type: 'AWS::DynamoDB::Table'
+      DeletionPolicy: Retain
+      Properties:
+        AttributeDefinitions:
+          -
+            AttributeName: id
+            AttributeType: S
+        KeySchema:
+          -
+            AttributeName: id
+            KeyType: HASH
+        ProvisionedThroughput:
+          ReadCapacityUnits: 1
+          WriteCapacityUnits: 1
+        TableName: ${self:provider.environment.USER_TABLE}
+  
