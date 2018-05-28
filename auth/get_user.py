@@ -11,25 +11,24 @@ def user_details(event, context):
     table = dynamodb.Table(constants.constants.USER_DB_TABLE_NAME)
 
     # # fetch user details from the database
-    # result = table.get_item(
-    #     Key={
-    #         'phone_number': event['pathParameters']['phone_number']
-    #     }
-    # )
+    
+    # TODO - need to validate the parameters and results before proceeding further 
 
-    # print("Movies from 1992 - titles A-L, with genres and lead actor")
-    print("Get the details of the User bassing on the given phone number")
+    print("Get the details of the User basing on the given phone number")
 
     statusCode = 400
+    print(event['pathParameters'])
     if event['pathParameters']['phone_number']:
         filtering_exp = Key('phone_number').eq(event['pathParameters']['phone_number'])
         statusCode = 200
         result = table.scan(FilterExpression=filtering_exp)
     else:
+        print("A")
         result = {
             "error":"No user with {} found".format(event['pathParameters']['phone_number'])
         }
 
+    print("B")
     # create a response
     response = {
         "statusCode": statusCode,
