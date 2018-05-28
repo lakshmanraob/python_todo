@@ -17,7 +17,6 @@ provider:
         - dynamodb:PutItem
         - dynamodb:UpdateItem
         - dynamodb:DeleteItem
-      # Resource: "arn:aws:dynamodb:us-east-1:581416734347:table/serverless-rest-api-with-dynamodb-dev"
       Resource: 
         - "arn:aws:dynamodb:${opt:region, self:provider.region}:*:table/${self:provider.environment.DYNAMODB_TABLE}"
         - "arn:aws:dynamodb:${opt:region, self:provider.region}:*:table/${self:provider.environment.USER_TABLE}"
@@ -69,6 +68,14 @@ functions:
       - http:
           path: signup
           method: post
+          cors: true
+  
+  userdetails:
+    handler: auth/get_user.user_details
+    events:
+      - http:
+          path: user/{phone_number}
+          method: get
           cors: true
 
 resources:
