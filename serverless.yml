@@ -64,10 +64,10 @@ functions:
           cors: true
   
   user:
-    handler: todos/create.create_user
+    handler: auth/signup.create_user
     events:
       - http:
-          path: todos/user
+          path: signup
           method: post
           cors: true
 
