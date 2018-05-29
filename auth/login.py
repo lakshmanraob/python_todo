@@ -18,9 +18,6 @@ def login(event,context):
     statusCode = 400
     payload = json.loads(event['body'])
 
-    headers = event['headers']
-    print(headers)
-
     if event['body']:
         # filte_phone_exp = Key('phone_number').eq(payload['phone_number'])
         # filter_pin_exp = Key('pin').eq(payload['pin'])
@@ -37,7 +34,6 @@ def login(event,context):
         }
 
     # create a response
-    print(json.dumps(result['Items'][0]['id'],cls=decimalencoder.DecimalEncoder))
     response = {
         "statusCode": statusCode,
         "headers": {
