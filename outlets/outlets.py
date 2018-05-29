@@ -57,9 +57,10 @@ def create_outlet(event,context):
 
     # adding the categories for the outlet
     if data['categories']:
+        outlet_item['categories'] = []
         for category in data['categories']:
             category['id'] = str(uuid.uuid1())
-            outlet_item['categories'] = category
+            outlet_item['categories'].append(category)
 
     # write the Outlet to the database
     outlet_table.put_item(Item=outlet_item)
