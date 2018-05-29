@@ -77,6 +77,14 @@ functions:
           path: user/{phone_number}
           method: get
           cors: true
+  
+  login:
+    handler: auth/login.login
+    events:
+      - http:
+          path: login
+          method: post
+          cors: true
 
 resources:
   Resources:
