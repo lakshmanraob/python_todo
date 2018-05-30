@@ -44,6 +44,7 @@ def create_outlet(event,context):
     create_timestamp = int(time.time() * 1000)
 
     outlet_table = dynamodb.Table(constants.constants.OUTLET_DB_TABLE)
+    category_table = dynamodb.Table(constants.constants.ITEMS_DB_TABLE)
 
     outlet_item = {
         'id': str(uuid.uuid1()),
@@ -60,7 +61,9 @@ def create_outlet(event,context):
         outlet_item['categories'] = []
         for category in data['categories']:
             category['id'] = str(uuid.uuid1())
-            outlet_item['categories'].append(category)
+            category['createdAt'] = create_timestamp
+            category_table.put_item(Item=category)
+            outlet_item['categories'].append(category['id'])
 
     # write the Outlet to the database
     outlet_table.put_item(Item=outlet_item)
@@ -88,6 +91,7 @@ def create_categories(event, context):
         return create_error_response(400,'Auth token missing')
 
     outlet_table = dynamodb.Table(constants.constants.OUTLET_DB_TABLE)
+    category_table = dynamodb.Table(constants.constants.ITEMS_DB_TABLE)
 
     # fetch todo from the database
     result = outlet_table.get_item(
@@ -97,16 +101,21 @@ def create_categories(event, context):
     )
 
     # update the table and return the new item - that is the logic
-
     items_json = result['Item']
 
     if items_json:
         if items_json['categories']:
             for category in data['categories']:
                 category['id'] = str(uuid.uuid1())
-                items_json['categories'].append(category)
+                category_table.put_item(Item=category)
+                items_json['categories'].append(category['id'])
         else:
-            items_json['categories'] = data['categories']
+            category_list = []
+            for category in data['categories']:
+                category['id'] = str(uuid.uuid1())
+                category_table.put_item(Item=category)
+                category_list.append(category['id'])
+            items_json['categories'] = category_list
 
     # create a response
     response = {

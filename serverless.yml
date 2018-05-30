@@ -10,6 +10,7 @@ provider:
     USER_TABLE: serverless-rest-api-with-user-dev
     ITEM_TABLE: serverless-rest-api-with-item-dev
     OUTLET_TABLE: serverless-rest-api-with-outlet-dev
+    ORDER_TABLE: serverless-rest-api-with-order-dev
   iamRoleStatements:
     - Effect: Allow
       Action:
@@ -24,6 +25,7 @@ provider:
         - "arn:aws:dynamodb:${opt:region, self:provider.region}:*:table/${self:provider.environment.USER_TABLE}"
         - "arn:aws:dynamodb:${opt:region, self:provider.region}:*:table/${self:provider.environment.ITEM_TABLE}"
         - "arn:aws:dynamodb:${opt:region, self:provider.region}:*:table/${self:provider.environment.OUTLET_TABLE}"
+        - "arn:aws:dynamodb:${opt:region, self:provider.region}:*:table/${self:provider.environment.ORDER_TABLE}"
 
 functions:
   create:
@@ -114,6 +116,22 @@ functions:
           method: post
           cors: true
 
+  get_category_details:
+    handler: category/category_details.get_category_details
+    events:
+      - http:
+          path: category/category_details/{id}
+          method: get
+          cors: true
+
+  place_order:
+    handler: category/item_order.item_request
+    events:
+      - http:
+          path: category/place_order
+          method: post
+          cors: true
+
 resources:
   Resources:
     TodosDynamoDbTable:
@@ -183,4 +201,21 @@ resources:
           ReadCapacityUnits: 1
           WriteCapacityUnits: 1
         TableName: ${self:provider.environment.OUTLET_TABLE}
+    
+    OrderTable:
+      Type: 'AWS::DynamoDB::Table'
+      DeletionPolicy: Retain
+      Properties:
+        AttributeDefinitions:
+          -
+            AttributeName: id
+            AttributeType: S
+        KeySchema:
+          -
+            AttributeName: id
+            KeyType: HASH
+        ProvisionedThroughput:
+          ReadCapacityUnits: 1
+          WriteCapacityUnits: 1
+        TableName: ${self:provider.environment.ORDER_TABLE}
   
